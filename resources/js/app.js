@@ -1,3 +1,4 @@
+// CSS'i en üstte olduğundan emin olalım
 import '../css/app.css';
 import './bootstrap';
 

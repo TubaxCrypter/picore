@@ -1,6 +1,5 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
-import daisyui from 'daisyui'; // DaisyUI'yi ekliyoruz
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -19,7 +18,10 @@ export default {
         },
     },
 
-    plugins: [forms,daisyui],
+    plugins: [
+        forms,
+        require('daisyui'),
+    ],
     daisyui: {
         themes: ["light", "dark", "retro", "cyberpunk", "valentine", "aqua", "synthwave"],
         darkTheme: "dark",
@@ -27,5 +29,5 @@ export default {
         styled: true,
         utils: true,
         logs: true,
-      },
+    },
 };
