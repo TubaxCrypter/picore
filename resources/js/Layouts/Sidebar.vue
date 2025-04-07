@@ -33,7 +33,7 @@ const closeMobileSidebar = () => {
             <!-- Sidebar header -->
             <div class="p-4 border-b border-base-300">
                 <div class="flex items-center justify-start pl-2">
-                    <span class="text-xl font-bold">PiNet</span>
+                    <span class="text-xl font-bold">PiNet2</span>
                 </div>
             </div>
 
@@ -61,18 +61,11 @@ const closeMobileSidebar = () => {
                     Gösterge Paneli
                 </NavLink>
 
-                <NavLink :href="route('content.management')" :active="route().current('content.management')">
+                <NavLink :href="route('tasks.index')" :active="route().current('tasks.*')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    İçerik Yönetimi
-                </NavLink>
-
-                <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                    Blog Yönetimi
+                    Görev Yönetimi
                 </NavLink>
 
                 <NavLink href="#" :active="false">
@@ -146,18 +139,11 @@ const closeMobileSidebar = () => {
                     Gösterge Paneli
                 </NavLink>
 
-                <NavLink :href="route('content.management')" :active="route().current('content.management')">
+                <NavLink :href="route('tasks.index')" :active="route().current('tasks.*')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    İçerik Yönetimi
-                </NavLink>
-
-                <NavLink :href="route('blogs.index')" :active="route().current('blogs.index')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                    Blog Yönetimi
+                    Görev Yönetimi
                 </NavLink>
 
                 <NavLink href="#" :active="false">

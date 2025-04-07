@@ -2,14 +2,14 @@
 import { Head } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
 import MainLayout from '@/Layouts/MainLayout.vue';
-import ContentModal from '@/Components/Content/ContentModal.vue';
-import ContentView from '@/Components/Content/ContentView.vue';
-import DeleteConfirmModal from '@/Components/Content/DeleteConfirmModal.vue';
+import {{modelName}}Modal from '@/Components/{{modelName}}/{{modelName}}Modal.vue';
+import {{modelName}}View from '@/Components/{{modelName}}/{{modelName}}View.vue';
+import {{modelName}}DeleteConfirm from '@/Components/{{modelName}}/{{modelName}}DeleteConfirm.vue';
 import { usePage, Inertia } from '@inertiajs/vue3';
 
 const page = usePage();
 const props = defineProps({
-    contents: {
+    {{modelNamePluralLowerCase}}: {
         type: Object,
         default: () => ({
             data: [],
@@ -41,7 +41,7 @@ const contentModalOpen = ref(false);
 const deleteModalOpen = ref(false);
 const viewModalOpen = ref(false);
 const modalMode = ref('create');
-const selectedContent = ref(null);
+const selected{{modelName}} = ref(null);
 
 // Filters
 const formFilters = reactive({
@@ -53,23 +53,23 @@ const formFilters = reactive({
 // Modal işlemleri
 const openCreateModal = () => {
     modalMode.value = 'create';
-    selectedContent.value = {};
+    selected{{modelName}}.value = {};
     contentModalOpen.value = true;
 };
 
 const openEditModal = (content) => {
     modalMode.value = 'edit';
-    selectedContent.value = content;
+    selected{{modelName}}.value = content;
     contentModalOpen.value = true;
 };
 
-const openContentView = (content) => {
-    selectedContent.value = content;
+const open{{modelName}}View = (content) => {
+    selected{{modelName}}.value = content;
     viewModalOpen.value = true;
 };
 
 const openDeleteModal = (content) => {
-    selectedContent.value = content;
+    selected{{modelName}}.value = content;
     deleteModalOpen.value = true;
 };
 
@@ -77,12 +77,12 @@ const closeModal = () => {
     contentModalOpen.value = false;
     deleteModalOpen.value = false;
     viewModalOpen.value = false;
-    selectedContent.value = null;
+    selected{{modelName}}.value = null;
 };
 
 // Filtreleme işlemi
 const applyFilters = () => {
-    Inertia.get(route('content.management'), formFilters, {
+    Inertia.get(route('{{modelNamePluralKebab}}.index'), formFilters, {
         preserveState: true,
         replace: true
     });
@@ -98,7 +98,7 @@ const clearFilters = () => {
 
 // Sayfalama işlemi
 const goToPage = (page) => {
-    Inertia.get(route('content.management'), {
+    Inertia.get(route('{{modelNamePluralKebab}}.index'), {
         ...formFilters,
         page
     }, {
@@ -133,12 +133,12 @@ const getStatusLabel = (status) => {
 </script>
 
 <template>
-    <Head title="İçerik Yönetimi" />
+    <Head :title="'{{modelNamePlural}}'" />
 
     <MainLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                İçerik Yönetimi
+                {{modelNamePlural}}
             </h2>
         </template>
 
@@ -201,15 +201,15 @@ const getStatusLabel = (status) => {
                 </div>
             </div>
 
-            <!-- İçerik Listesi -->
+            <!-- {{modelNamePlural}} Listesi -->
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
                 <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 class="font-semibold text-lg">İçerikler</h3>
+                    <h3 class="font-semibold text-lg">{{modelNamePlural}}</h3>
                     <button @click="openCreateModal" class="btn btn-primary btn-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
-                        Yeni İçerik
+                        Yeni {{modelName}}
                     </button>
                 </div>
                 <div class="p-4">
@@ -225,8 +225,8 @@ const getStatusLabel = (status) => {
                                     <th scope="col" class="px-4 py-3 text-right">İşlemler</th>
                                 </tr>
                             </thead>
-                            <tbody v-if="contents.data && contents.data.length > 0">
-                                <tr v-for="content in contents.data" :key="content.id" class="bg-white border-b hover:bg-gray-50">
+                            <tbody v-if="{{modelNamePluralLowerCase}}.data && {{modelNamePluralLowerCase}}.data.length > 0">
+                                <tr v-for="content in {{modelNamePluralLowerCase}}.data" :key="content.id" class="bg-white border-b hover:bg-gray-50">
                                     <td class="px-4 py-3 font-medium text-gray-900">
                                         {{ content.title }}
                                     </td>
@@ -239,7 +239,7 @@ const getStatusLabel = (status) => {
                                     <td class="px-4 py-3">{{ content.author ? content.author.name : '-' }}</td>
                                     <td class="px-4 py-3">{{ content.published_at || content.created_at }}</td>
                                     <td class="px-4 py-3 text-right">
-                                        <button @click="openContentView(content)" class="text-blue-600 hover:text-blue-900 mr-2">
+                                        <button @click="open{{modelName}}View(content)" class="text-blue-600 hover:text-blue-900 mr-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -261,7 +261,7 @@ const getStatusLabel = (status) => {
                             <tbody v-else>
                                 <tr>
                                     <td colspan="6" class="px-4 py-6 text-center text-gray-500">
-                                        Herhangi bir içerik bulunamadı. Yeni bir içerik oluşturmak için "Yeni İçerik" butonuna tıklayın.
+                                        Herhangi bir içerik bulunamadı. Yeni bir {{modelNameLowerCase}} oluşturmak için "Yeni {{modelName}}" butonuna tıklayın.
                                     </td>
                                 </tr>
                             </tbody>
@@ -269,14 +269,14 @@ const getStatusLabel = (status) => {
                     </div>
                     
                     <!-- Sayfalama -->
-                    <div v-if="contents.data && contents.data.length > 0" class="flex items-center justify-between mt-4">
+                    <div v-if="{{modelNamePluralLowerCase}}.data && {{modelNamePluralLowerCase}}.data.length > 0" class="flex items-center justify-between mt-4">
                         <div class="text-sm text-gray-700">
-                            <span>Toplam <span class="font-medium">{{ contents.meta.total }}</span> kayıttan 
-                            <span class="font-medium">{{ contents.data.length }}</span> kayıt gösteriliyor</span>
+                            <span>Toplam <span class="font-medium">{{ {{modelNamePluralLowerCase}}.meta.total }}</span> kayıttan 
+                            <span class="font-medium">{{ {{modelNamePluralLowerCase}}.data.length }}</span> kayıt gösteriliyor</span>
                         </div>
                         <div class="flex space-x-2">
                             <button
-                                v-for="(link, i) in contents.links"
+                                v-for="(link, i) in {{modelNamePluralLowerCase}}.links"
                                 :key="i"
                                 @click="link.url ? goToPage(link.label) : null"
                                 :class="[
@@ -299,26 +299,26 @@ const getStatusLabel = (status) => {
         </div>
     </MainLayout>
 
-    <!-- İçerik Ekleme/Düzenleme Modal -->
-    <ContentModal
+    <!-- {{modelName}} Ekleme/Düzenleme Modal -->
+    <{{modelName}}Modal
         :show="contentModalOpen"
         :mode="modalMode"
-        :content="selectedContent"
+        :content="selected{{modelName}}"
         :categories="categories"
         @close="closeModal"
     />
 
-    <!-- İçerik Görüntüleme Modal -->
-    <ContentView
+    <!-- {{modelName}} Görüntüleme Modal -->
+    <{{modelName}}View
         :show="viewModalOpen"
-        :content="selectedContent"
+        :content="selected{{modelName}}"
         @close="closeModal"
     />
 
-    <!-- İçerik Silme Modal -->
-    <DeleteConfirmModal
+    <!-- {{modelName}} Silme Modal -->
+    <{{modelName}}DeleteConfirm
         :show="deleteModalOpen"
-        :content="selectedContent"
+        :content="selected{{modelName}}"
         @close="closeModal"
     />
-</template>
+</template> 

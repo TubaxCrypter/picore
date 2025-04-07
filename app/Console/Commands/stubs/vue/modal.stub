@@ -1,0 +1,254 @@
+<script setup>
+import { reactive, ref, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import Modal from '@/Components/Modal.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextEditor from '@/Components/TextEditor.vue';
+
+const props = defineProps({
+    show: Boolean,
+    content: {
+        type: Object,
+        default: () => ({})
+    },
+    mode: {
+        type: String,
+        default: 'create',
+        validator: (value) => ['create', 'edit'].includes(value)
+    },
+    categories: {
+        type: Array,
+        default: () => []
+    }
+});
+
+const emit = defineEmits(['close']);
+
+const form = useForm({
+    id: null,
+    title: '',
+    slug: '',
+    content: '',
+    category_id: '',
+    status: 'draft',
+    meta_title: '',
+    meta_description: '',
+    published_at: null
+});
+
+// Form durumunu izle
+watch(() => props.show, (value) => {
+    if (value && props.content) {
+        form.id = props.content.id || null;
+        form.title = props.content.title || '';
+        form.slug = props.content.slug || '';
+        form.content = props.content.content || '';
+        form.category_id = props.content.category_id || '';
+        form.status = props.content.status || 'draft';
+        form.meta_title = props.content.meta_title || '';
+        form.meta_description = props.content.meta_description || '';
+        form.published_at = props.content.published_at || null;
+    }
+}, { immediate: true });
+
+// Durum seçenekleri
+const statusOptions = [
+    { value: 'draft', label: 'Taslak' },
+    { value: 'review', label: 'İnceleme' },
+    { value: 'planning', label: 'Planlama' },
+    { value: 'published', label: 'Yayında' }
+];
+
+// Slug oluşturma
+const generateSlug = () => {
+    if (!form.title) return;
+    form.slug = form.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+};
+
+// Form gönderme
+const submit = () => {
+    if (props.mode === 'create') {
+        form.post(route('{{modelNamePluralKebab}}.store'), {
+            onSuccess: () => closeModal(),
+            preserveScroll: true,
+        });
+    } else {
+        form.put(route('{{modelNamePluralKebab}}.update', form.id), {
+            onSuccess: () => closeModal(),
+            preserveScroll: true,
+        });
+    }
+};
+
+// Meta başlık ve açıklama işlemleri
+const updateMetaFromContent = () => {
+    if (!form.meta_title) {
+        form.meta_title = form.title;
+    }
+    
+    if (!form.meta_description && form.content) {
+        // HTML taglarını temizle ve ilk 160 karakteri al
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = form.content;
+        const text = tempDiv.textContent || tempDiv.innerText || '';
+        form.meta_description = text.substring(0, 160);
+    }
+};
+
+// Modalı kapat
+const closeModal = () => {
+    form.reset();
+    form.clearErrors();
+    emit('close');
+};
+</script>
+
+<template>
+    <Modal :show="show" :max-width="'4xl'" @close="closeModal">
+        <div class="p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                {{ mode === 'create' ? 'Yeni {{modelName}} Oluştur' : '{{modelName}} Düzenle' }}
+            </h2>
+
+            <form @submit.prevent="submit" class="space-y-4">
+                <!-- Ana Bilgiler -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <!-- Başlık -->
+                        <div>
+                            <InputLabel for="title" value="Başlık" />
+                            <TextInput
+                                id="title"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.title"
+                                @blur="generateSlug"
+                                required
+                                autofocus
+                            />
+                            <InputError class="mt-2" :message="form.errors.title" />
+                        </div>
+
+                        <!-- Slug -->
+                        <div>
+                            <InputLabel for="slug" value="Slug" />
+                            <TextInput
+                                id="slug"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.slug"
+                                required
+                            />
+                            <InputError class="mt-2" :message="form.errors.slug" />
+                        </div>
+
+                        <!-- Kategori ve Durum -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <InputLabel for="category_id" value="Kategori" />
+                                <select
+                                    id="category_id"
+                                    v-model="form.category_id"
+                                    class="mt-1 block w-full border-gray-300 focus:border-primary focus:ring focus:ring-primary-200 rounded-md shadow-sm"
+                                    required
+                                >
+                                    <option value="">Kategori Seçin</option>
+                                    <option v-for="category in categories" :key="category.id" :value="category.id">
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.category_id" />
+                            </div>
+
+                            <div>
+                                <InputLabel for="status" value="Durum" />
+                                <select
+                                    id="status"
+                                    v-model="form.status"
+                                    class="mt-1 block w-full border-gray-300 focus:border-primary focus:ring focus:ring-primary-200 rounded-md shadow-sm"
+                                    required
+                                >
+                                    <option v-for="option in statusOptions" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.status" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- SEO Alanları -->
+                        <h3 class="font-medium text-gray-700">SEO Bilgileri</h3>
+                        
+                        <!-- Meta Başlık -->
+                        <div>
+                            <InputLabel for="meta_title" value="Meta Başlık" />
+                            <TextInput
+                                id="meta_title"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.meta_title"
+                            />
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ form.meta_title ? form.meta_title.length : 0 }}/60 karakter
+                            </div>
+                            <InputError class="mt-2" :message="form.errors.meta_title" />
+                        </div>
+
+                        <!-- Meta Açıklama -->
+                        <div>
+                            <InputLabel for="meta_description" value="Meta Açıklama" />
+                            <textarea
+                                id="meta_description"
+                                class="mt-1 block w-full border-gray-300 focus:border-primary focus:ring focus:ring-primary-200 rounded-md shadow-sm"
+                                v-model="form.meta_description"
+                                rows="3"
+                            ></textarea>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ form.meta_description ? form.meta_description.length : 0 }}/160 karakter
+                            </div>
+                            <InputError class="mt-2" :message="form.errors.meta_description" />
+                        </div>
+
+                        <div class="mt-2">
+                            <button type="button" class="text-sm text-primary hover:text-primary-dark" @click="updateMetaFromContent">
+                                SEO bilgilerini içerikten otomatik doldur
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İçerik -->
+                <div>
+                    <InputLabel for="content" value="İçerik" />
+                    <TextEditor
+                        id="content"
+                        v-model="form.content"
+                        class="mt-1"
+                        placeholder="İçerik girin..."
+                    />
+                    <InputError class="mt-2" :message="form.errors.content" />
+                </div>
+
+                <div class="flex justify-end space-x-2 mt-6">
+                    <SecondaryButton @click="closeModal">
+                        İptal
+                    </SecondaryButton>
+                    <PrimaryButton :disabled="form.processing" :class="{ 'opacity-25': form.processing }">
+                        {{ mode === 'create' ? 'Oluştur' : 'Güncelle' }}
+                    </PrimaryButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+</template> 

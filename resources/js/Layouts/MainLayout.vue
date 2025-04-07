@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import Header from '@/Layouts/Header.vue';
 import Sidebar from '@/Layouts/Sidebar.vue';
 import Footer from '@/Layouts/Footer.vue';
+import { ToastContainer } from 'vue-toast-notification';
 
 // Mobil görünümde sidebar varsayılan olarak kapalı, PC'de açık
 const showMobileSidebar = ref(false);
@@ -14,6 +15,9 @@ const toggleMobileSidebar = () => {
 
 <template>
     <div class="min-h-screen bg-base-100">
+        <!-- Toast Container -->
+        <ToastContainer />
+        
         <!-- PC ve mobil için ayrı sidebar bileşenleri -->
         <Sidebar :show-mobile="showMobileSidebar" @update:show-mobile="showMobileSidebar = $event" />
         

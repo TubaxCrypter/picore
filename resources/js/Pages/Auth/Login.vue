@@ -23,9 +23,14 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
+    console.log('Login form submitted', form);
+    try {
+        form.post('/login', {
+            onFinish: () => form.reset('password'),
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+    }
 };
 </script>
 
@@ -91,6 +96,7 @@ const submit = () => {
                     class="ms-4"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
+                    @click="submit"
                 >
                     Log in
                 </PrimaryButton>

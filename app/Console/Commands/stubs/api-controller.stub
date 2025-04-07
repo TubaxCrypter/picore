@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\{{modelName}};
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class {{modelName}}Controller extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $query = {{modelName}}::query();
+        
+        // Filtreleme
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('content', 'like', '%' . $request->search . '%');
+        }
+        
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->has('category') && $request->category !== '') {
+            $query->where('category_id', $request->category);
+        }
+        
+        // Sayfalama ve ilişkili verileri alma
+        ${{modelNamePluralLowerCase}} = $query->with(['category', 'author'])
+                      ->orderBy('created_at', 'desc')
+                      ->paginate($request->per_page ?? 10);
+        
+        return response()->json(${{modelNamePluralLowerCase}});
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:{{modelNamePluralSnake}}',
+            'content' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'status' => 'required|string|in:draft,review,planning,published',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'published_at' => 'nullable|date',
+        ]);
+        
+        ${{modelNameLowerCase}} = new {{modelName}}();
+        ${{modelNameLowerCase}}->title = $request->title;
+        ${{modelNameLowerCase}}->slug = $request->slug;
+        ${{modelNameLowerCase}}->content = $request->content;
+        ${{modelNameLowerCase}}->category_id = $request->category_id;
+        ${{modelNameLowerCase}}->status = $request->status;
+        ${{modelNameLowerCase}}->meta_title = $request->meta_title;
+        ${{modelNameLowerCase}}->meta_description = $request->meta_description;
+        ${{modelNameLowerCase}}->user_id = Auth::id();
+        
+        if ($request->status === 'published' && $request->has('published_at')) {
+            ${{modelNameLowerCase}}->published_at = $request->published_at;
+        } elseif ($request->status === 'published') {
+            ${{modelNameLowerCase}}->published_at = now();
+        }
+        
+        ${{modelNameLowerCase}}->save();
+        
+        return response()->json(${{modelNameLowerCase}}->load(['category', 'author']), 201);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show({{modelName}} ${{modelNameLowerCase}})
+    {
+        return response()->json(${{modelNameLowerCase}}->load(['category', 'author']));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, {{modelName}} ${{modelNameLowerCase}})
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:{{modelNamePluralSnake}},slug,' . ${{modelNameLowerCase}}->id,
+            'content' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'status' => 'required|string|in:draft,review,planning,published',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'published_at' => 'nullable|date',
+        ]);
+        
+        ${{modelNameLowerCase}}->title = $request->title;
+        ${{modelNameLowerCase}}->slug = $request->slug;
+        ${{modelNameLowerCase}}->content = $request->content;
+        ${{modelNameLowerCase}}->category_id = $request->category_id;
+        ${{modelNameLowerCase}}->status = $request->status;
+        ${{modelNameLowerCase}}->meta_title = $request->meta_title;
+        ${{modelNameLowerCase}}->meta_description = $request->meta_description;
+        
+        if ($request->status === 'published' && !${{modelNameLowerCase}}->published_at && $request->has('published_at')) {
+            ${{modelNameLowerCase}}->published_at = $request->published_at;
+        } elseif ($request->status === 'published' && !${{modelNameLowerCase}}->published_at) {
+            ${{modelNameLowerCase}}->published_at = now();
+        }
+        
+        ${{modelNameLowerCase}}->save();
+        
+        return response()->json(${{modelNameLowerCase}}->load(['category', 'author']));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy({{modelName}} ${{modelNameLowerCase}})
+    {
+        ${{modelNameLowerCase}}->delete();
+        
+        return response()->json(null, 204);
+    }
+} 
